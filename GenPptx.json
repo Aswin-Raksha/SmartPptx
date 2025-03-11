@@ -12,14 +12,14 @@
         0,
         0
       ],
-      "id": "89deb8ef-4eb7-48e0-87d7-b13271038bbf",
+      "id": "1ae1ccb6-5609-4e0e-a331-7de1e58071e5",
       "name": "When chat message received",
-      "webhookId": "bb9d92b0-f3fe-4b68-9abb-40851d0d3768"
+      "webhookId": "f972357b-0a4b-487f-aa25-676c5ba8591d"
     },
     {
       "parameters": {
         "options": {
-          "systemMessage": "Generate a professional PowerPoint presentation with 5 slides using the pptxgenjs library. The content should be dynamically created based on user input. Each slide should have a structured layout with a title, bullet points, and appropriate design elements.\n\nThe error \"TypeError: slide1.addTitle is not a function\" indicates that the pptxgenjs library does not have an addTitle method. Instead, you should use addText() to add titles or content to slides.\n\nuse this method:\n\nconst PptxGenJS = require(\"pptxgenjs\");\nlet pres = new PptxGenJS();\n\nlet slide = pres.addSlide();\nslide.addText(\"React JS\", { x: 1, y: 1, fontSize: 24 });\n\npres.writeFile({ fileName: \"/tmp/react_js_presentation.pptx\" })  // ✅ Updated method\n  .then(() => console.log(\"Presentation created successfully!\"))\n  .catch(err => console.error(\"Error:\", err));\n"
+          "systemMessage": "Generate a professional PowerPoint presentation with 5 slides using the pptxgenjs library. The content should be dynamically created based on user input. Each slide should have a structured layout with a title, bullet points, and appropriate design elements.\n\nThe error \"TypeError: slide1.addTitle is not a function\" indicates that the pptxgenjs library does not have an addTitle method. Instead, you should use addText() to add titles or content to slides.\n\nuse this method:\n\nconst PptxGenJS = require(\"pptxgenjs\");\nlet pres = new PptxGenJS();\n\nlet slide = pres.addSlide();\nslide.addText(\"React JS\", { x: 1, y: 1, fontSize: 24 });\n\npres.writeFile({ fileName: \"react_js_presentation.pptx\" })  // ✅ Updated method\n  .then(() => console.log(\"Presentation created successfully!\"))\n  .catch(err => console.error(\"Error:\", err));\n"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -28,7 +28,7 @@
         260,
         0
       ],
-      "id": "5637a562-4363-4566-933c-54add628d49b",
+      "id": "7573b353-7284-48e4-9dab-2089a043acc7",
       "name": "AI Agent"
     },
     {
@@ -40,10 +40,10 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1000,
         0
       ],
-      "id": "697b5f3f-9b13-4dd0-acf1-5c7f64bf1d1f",
+      "id": "f2f763a3-2f4a-4b2a-a587-99dae4b9e21e",
       "name": "Convert to File"
     },
     {
@@ -64,7 +64,7 @@
         220,
         220
       ],
-      "id": "00521003-11ea-4a56-9d5d-707addcb101b",
+      "id": "c5d6532b-8ff0-4a4e-99c8-f6205d5fc6a3",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -80,10 +80,10 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        1840,
+        1940,
         0
       ],
-      "id": "c3733d65-d85e-4b38-bcdf-b42fdf8c279a",
+      "id": "34824453-dcd5-44d6-8f5f-d9a72ff7918d",
       "name": "Execute Command"
     },
     {
@@ -107,10 +107,10 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        2480,
+        2620,
         0
       ],
-      "id": "e5c33c0b-2561-419e-b495-d9bd03b6eee8",
+      "id": "cb127f4f-de06-429a-9064-9ed34fb86444",
       "name": "Google Drive1",
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -121,29 +121,29 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/React_JS_Presentation.pptx",
+        "fileSelector": "=/home/node/{{ $('Code1').item.json.fileName }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        2180,
+        2280,
         0
       ],
-      "id": "8d1f0417-24ee-4069-add7-4fdf2a8ca135",
+      "id": "0a2360ac-4635-47b3-a2fb-910d137866cd",
       "name": "Read/Write Files from Disk2"
     },
     {
       "parameters": {
-        "jsCode": "const text = $json[\"output\"]; // AI-generated response\nconst match = text.match(/```(?:javascript|js)?\\n([\\s\\S]*?)```/i);\nreturn [{ code: match ? match[1] : text }];\n"
+        "jsCode": "const text = $json[\"output\"]; // AI-generated response\n\n// Extract JavaScript code from markdown-style code block\nconst codeMatch = text.match(/```(?:javascript|js)?\\n([\\s\\S]*?)```/i);\nconst extractedCode = codeMatch ? codeMatch[1] : text;\n\n// Extract filename ending with .pptx\nconst fileMatch = extractedCode.match(/fileName:\\s*[\"']([^\"']+\\.pptx)[\"']/);\nconst extractedFileName = fileMatch ? fileMatch[1] : \"default.pptx\"; // Fallback if not found\n\n// Return both extracted values\nreturn [{ code: extractedCode, fileName: extractedFileName }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        720,
+        640,
         0
       ],
-      "id": "63112c74-580b-4000-ba8c-a2942a6f06df",
+      "id": "309b37a0-0c61-4b1e-bc2f-f7cd9849e139",
       "name": "Code1"
     },
     {
@@ -157,10 +157,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        1420,
+        1440,
         0
       ],
-      "id": "944c2272-7a07-4eb3-8844-91547e110a22",
+      "id": "6dc82314-bcba-41aa-87fe-1ba590dcca16",
       "name": "Read/Write Files from Disk1"
     },
     {
@@ -173,8 +173,21 @@
         360,
         220
       ],
-      "id": "f926a333-7fab-475b-b778-da21767efd77",
+      "id": "76191ebd-c0ec-4834-b9d3-2cbec58b5663",
       "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        0
+      ],
+      "id": "f596ef1f-29c9-429d-be1a-5fe6bf356460",
+      "name": "Code"
     }
   ],
   "pinData": {},
@@ -260,7 +273,7 @@
       "main": [
         [
           {
-            "node": "Execute Command",
+            "node": "Code",
             "type": "main",
             "index": 0
           }
@@ -277,17 +290,28 @@
           }
         ]
       ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8d5adced-fc0d-4685-b92b-48a496bec0a4",
+  "versionId": "87bd365a-ddab-48be-94bf-c335b6dc5a81",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "b7312400c1ae4f5aa0ef7b52ca818898e0ea2414d268f76bbe8c920ca49e08f8"
   },
-  "id": "k2DuXlOWWMUR86Qh",
+  "id": "3UtYsrokljRvDYY1",
   "tags": []
 }
