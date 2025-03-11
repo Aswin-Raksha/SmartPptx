@@ -1,0 +1,257 @@
+{
+  "name": "Script_to_pptx",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0a128d0d-e1a0-492b-b9f9-b0bdf0cc3f93",
+      "name": "When chat message received",
+      "webhookId": "bb9d92b0-f3fe-4b68-9abb-40851d0d3768"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "you are an expert in creating presentation (pptx) using javascript . I need you to generate only the code to generate pptx for the user title , i just need you to generate the code and output the code , i dont need anything except the code since i will be saving it with .js extension so that i could run it in code node.\n\njust genrate the code and i need the output executable."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        220,
+        0
+      ],
+      "id": "86d0ab12-2339-4a1e-9c7b-437801cc641f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/files/my_script.js",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "d14a4825-5819-4362-bed3-169286d76768",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        0
+      ],
+      "id": "f8d85f31-fe2c-4502-988f-0288c0eed98f",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "includeOtherFields": true,
+        "options": {
+          "stripBinary": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        0
+      ],
+      "id": "ab052c30-669b-454b-bbcf-671a3c57427b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        240
+      ],
+      "id": "19e8082e-8400-400a-a05d-d3e20fb2d4a9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nCSLZQ4ajkrSooSU",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        240
+      ],
+      "id": "5565f527-5e8f-47ef-ab97-e48544616a27",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.fileName }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        0
+      ],
+      "id": "2fa3681d-2b04-4732-bb19-52f19293c807",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileContent = $input.all()[0].json.fileContent;\nconsole.log(\"File Content:\", fileContent);\ntry {\n    eval(fileContent); // Execute my_script.js\n    // Access the base64 string from global scope\n    return [{ json: { pptxBase64: global.pptxBase64 } }];\n} catch (error) {\n    return [{ json: { error: error.message } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        0
+      ],
+      "id": "cd72c71e-2c3d-4b6b-8412-1887b418dc57",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c02ad9ea-afbe-48a2-a001-b9d7aa0821cd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43ff7dc6f885dd1f434ae92799854c79bfc69d3ce67acbc70e10fb722bd5c96c"
+  },
+  "id": "mLBeFKNNifjn1p9s",
+  "tags": []
+}

@@ -1,0 +1,293 @@
+{
+  "name": "GenPptx",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "89deb8ef-4eb7-48e0-87d7-b13271038bbf",
+      "name": "When chat message received",
+      "webhookId": "bb9d92b0-f3fe-4b68-9abb-40851d0d3768"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Generate a professional PowerPoint presentation with 5 slides using the pptxgenjs library. The content should be dynamically created based on user input. Each slide should have a structured layout with a title, bullet points, and appropriate design elements.\n\nThe error \"TypeError: slide1.addTitle is not a function\" indicates that the pptxgenjs library does not have an addTitle method. Instead, you should use addText() to add titles or content to slides.\n\nuse this method:\n\nconst PptxGenJS = require(\"pptxgenjs\");\nlet pres = new PptxGenJS();\n\nlet slide = pres.addSlide();\nslide.addText(\"React JS\", { x: 1, y: 1, fontSize: 24 });\n\npres.writeFile({ fileName: \"/tmp/react_js_presentation.pptx\" })  // ✅ Updated method\n  .then(() => console.log(\"Presentation created successfully!\"))\n  .catch(err => console.error(\"Error:\", err));\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        260,
+        0
+      ],
+      "id": "5637a562-4363-4566-933c-54add628d49b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "code",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "697b5f3f-9b13-4dd0-acf1-5c7f64bf1d1f",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {
+          "responseFormat": "text"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        220
+      ],
+      "id": "00521003-11ea-4a56-9d5d-707addcb101b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MtE9qczBM6jiAl3z",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "node /home/node/n8n-files/test2.js\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        0
+      ],
+      "id": "c3733d65-d85e-4b38-bcdf-b42fdf8c279a",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1_RJGhkuUJ7Pxhs1QyW-1nXpk_XcM4q8A",
+          "mode": "list",
+          "cachedResultName": "output",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1_RJGhkuUJ7Pxhs1QyW-1nXpk_XcM4q8A"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        0
+      ],
+      "id": "e5c33c0b-2561-419e-b495-d9bd03b6eee8",
+      "name": "Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "73jADAtW00GcXK0Z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/React_JS_Presentation.pptx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        0
+      ],
+      "id": "8d1f0417-24ee-4069-add7-4fdf2a8ca135",
+      "name": "Read/Write Files from Disk2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json[\"output\"]; // AI-generated response\nconst match = text.match(/```(?:javascript|js)?\\n([\\s\\S]*?)```/i);\nreturn [{ code: match ? match[1] : text }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        0
+      ],
+      "id": "63112c74-580b-4000-ba8c-a2942a6f06df",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/home/node/n8n-files/test2.js",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        0
+      ],
+      "id": "944c2272-7a07-4eb3-8844-91547e110a22",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        220
+      ],
+      "id": "f926a333-7fab-475b-b778-da21767efd77",
+      "name": "Window Buffer Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk2": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6b6f47da-3afa-4208-b7dd-b7a72143f75b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7312400c1ae4f5aa0ef7b52ca818898e0ea2414d268f76bbe8c920ca49e08f8"
+  },
+  "id": "k2DuXlOWWMUR86Qh",
+  "tags": []
+}
